@@ -77,12 +77,6 @@
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
     );
 
-  async function getJson(path) {
-    const res = await fetch(path);
-    if (!res.ok) throw new Error(`${path} -> ${res.status}`);
-    return res.json();
-  }
-
   // ------------------------------------------------------------------
   // Theme — auto follows the clock: light 7am–7pm, dark otherwise.
   // ------------------------------------------------------------------
@@ -110,9 +104,7 @@
   // ------------------------------------------------------------------
   async function loadScoreboard() {
     try {
-      state.scoreboard = await getJson(
-        `/api/scoreboard?date=${fmtDateParam(state.date)}&days=${state.days}`
-      );
+      state.scoreboard = await Api.scoreboard(fmtDateParam(state.date), state.days);
       renderMatches();
       renderWatchPanel();
       renderHeader();
@@ -124,7 +116,7 @@
 
   async function loadStandings() {
     try {
-      state.standings = await getJson('/api/standings');
+      state.standings = await Api.standings();
       renderStandings();
       renderFavPanel();
     } catch (err) {
@@ -135,7 +127,7 @@
 
   async function loadOdds() {
     try {
-      state.odds = await getJson('/api/odds');
+      state.odds = await Api.odds(fmtDateParam(new Date()));
       renderOdds();
     } catch (err) {
       console.error(err);
@@ -151,9 +143,7 @@
       return;
     }
     try {
-      const board = await getJson(
-        `/api/scoreboard?date=${fmtDateParam(new Date())}&days=${ALARM_DAYS}`
-      );
+      const board = await Api.scoreboard(fmtDateParam(new Date()), ALARM_DAYS);
       state.alarmMatches = board.matches.filter(
         (m) =>
           m.status.state === 'pre' &&

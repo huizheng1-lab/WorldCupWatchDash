@@ -4,6 +4,10 @@ A second-screen dashboard for the **FIFA World Cup 2026**: launch live matches i
 your **FOX One** subscription, and track **live scores**, **group standings**, and
 **betting odds** — all in one place, auto-refreshing.
 
+Runs two ways with the same code: as **pure static pages** (no server needed —
+host on GitHub Pages or any static host) or behind the bundled zero-dependency
+Node server.
+
 ## Features
 
 - **▶️ Watch on FOX One** — every match card shows its broadcast, and the featured
@@ -22,10 +26,27 @@ your **FOX One** subscription, and track **live scores**, **group standings**, a
   (Auto → Light → Dark).
 - **Standings** — all group tables (P/W/D/L/GD/Pts) with qualification positions
   highlighted, refreshed every 5 minutes.
-- **Betting odds** — moneyline (home/draw/away) and over/under per match,
-  refreshed every 2 minutes. Informational only.
+- **Betting odds** — ESPN BET moneyline (home/draw/away) and over/under for the
+  week's matches, refreshed every 2 minutes. No API key needed. Informational only.
 
 ## Quick start
+
+### Option A — static, no server
+
+Serve the `docs/` folder with any static file host:
+
+```bash
+npx serve docs        # or: python3 -m http.server -d docs 8000
+```
+
+Or publish it on **GitHub Pages**: repo Settings → Pages → "Deploy from a
+branch" → select your branch and the `/docs` folder. Done — the dashboard
+fetches ESPN's CORS-enabled public feeds straight from your browser.
+
+> Opening `index.html` via `file://` won't work — browsers block data fetches
+> from local files. Any static HTTP host is fine.
+
+### Option B — with the bundled server
 
 No dependencies to install — just Node 18+.
 
@@ -34,57 +55,45 @@ node server.js
 # open http://localhost:3000
 ```
 
+The frontend auto-detects which mode it's running in: if the server's `/api`
+routes are present it uses them (with shared caching); otherwise it talks to
+the public feeds directly.
+
 ## Data sources
 
 | Data | Source | Notes |
 | --- | --- | --- |
 | Scores & schedule | ESPN public scoreboard feed (`fifa.world`) | no key needed |
 | Standings | ESPN public standings feed | no key needed |
-| Betting odds | [The Odds API](https://the-odds-api.com) *(optional)* | falls back to the ESPN BET lines embedded in the scoreboard |
+| Betting odds | ESPN BET lines embedded in the scoreboard | no key needed |
 | Streaming | [FOX One](https://www.foxone.com) | requires your FOX One subscription |
 
-### Optional: richer betting odds
-
-Grab a free API key from [the-odds-api.com](https://the-odds-api.com) and run:
-
-```bash
-ODDS_API_KEY=your_key node server.js
-```
-
-The server then pulls h2h + totals markets from US bookmakers (American odds).
-You can override the sport key with `ODDS_SPORT_KEY` (default
-`soccer_fifa_world_cup`).
-
-### Configuration
+### Configuration (server mode only)
 
 | Env var | Default | Purpose |
 | --- | --- | --- |
 | `PORT` | `3000` | HTTP port |
-| `ODDS_API_KEY` | *(unset)* | The Odds API key for richer betting markets |
-| `ODDS_SPORT_KEY` | `soccer_fifa_world_cup` | The Odds API sport identifier |
 | `DAY_TZ` | `America/New_York` | Time zone for match-day boundaries (matches ESPN's Eastern-based schedule days) |
 
 ## Offline / demo mode
 
-If the upstream feeds are unreachable (or you append `?demo=1` to the API
-routes), the server serves bundled sample data and the UI shows a
-**“Showing demo data”** banner so you always get a working dashboard.
+If the upstream feeds are unreachable, the dashboard falls back to bundled
+sample data and shows a **“Showing demo data”** banner so you always get a
+working page. In server mode you can force it by appending `?demo=1` to the
+API routes.
 
 ## Architecture
 
 ```
-server.js          zero-dependency Node server
-  /api/scoreboard  → ESPN scoreboard, normalized + 30s cache
-                     (?date=YYYYMMDD&days=N for multi-day windows)
-  /api/standings   → ESPN standings, normalized + 5min cache
-  /api/odds        → The Odds API (if key) or ESPN lines + 2min cache
-  /*               → static files from public/
-public/            vanilla HTML/CSS/JS frontend (no build step)
-data/              sample data for offline/demo fallback
+docs/              the entire site — static-host this folder as-is
+  index.html       vanilla HTML/CSS/JS frontend (no build step)
+  js/app.js        UI: rendering, polling, alarm, theme
+  js/data.js       data layer: auto-detects server vs static mode
+  js/normalize.js  shared normalizers (browser + Node)
+  data/            sample data for offline/demo fallback
+server.js          optional zero-dependency Node server: serves docs/ and
+                   proxies/caches the same feeds under /api/*
 ```
-
-The server proxies and normalizes all upstream data, so the browser never
-deals with CORS or API keys.
 
 ## Notes
 

@@ -1,15 +1,15 @@
 /**
- * World Cup Watch Dash — zero-dependency Node server.
+ * World Cup Watch Dash — zero-dependency Node server (optional).
  *
- * Serves the static dashboard and proxies/normalizes upstream data so the
- * browser never deals with CORS or API keys:
+ * The site in docs/ is fully static-capable; this server adds a proxy layer
+ * so the browser never talks to upstream APIs directly and any Odds API key
+ * stays server-side. It serves docs/ and exposes:
  *
  *   GET /api/scoreboard?date=YYYYMMDD&days=N   live scores (ESPN public API);
  *                                       days>1 returns a date-range window
  *   GET /api/standings                  group standings (ESPN public API)
- *   GET /api/odds                       betting odds (The Odds API if
- *                                       ODDS_API_KEY is set, else odds
- *                                       embedded in the ESPN scoreboard)
+ *   GET /api/odds                       betting odds (ESPN BET lines embedded
+ *                                       in the scoreboard — no key needed)
  *
  * Append ?demo=1 to any API route to force the bundled sample data.
  * When an upstream call fails, sample data is served with source:"sample"
@@ -18,17 +18,18 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const WCData = require('./docs/js/normalize.js');
 
 const PORT = process.env.PORT || 3000;
-const ODDS_API_KEY = process.env.ODDS_API_KEY || '';
-const ODDS_SPORT_KEY = process.env.ODDS_SPORT_KEY || 'soccer_fifa_world_cup';
+// Day boundaries for "today" and demo-data filtering. ESPN's scoreboard
+// groups match days in US Eastern, so we match it.
+const DAY_TZ = process.env.DAY_TZ || WCData.DEFAULT_TZ;
 
 const ESPN_BASE = 'https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world';
 const ESPN_STANDINGS = 'https://site.api.espn.com/apis/v2/sports/soccer/fifa.world/standings';
-const ODDS_API_BASE = 'https://api.the-odds-api.com/v4';
 
-const PUBLIC_DIR = path.join(__dirname, 'public');
-const DATA_DIR = path.join(__dirname, 'data');
+const PUBLIC_DIR = path.join(__dirname, 'docs');
+const DATA_DIR = path.join(PUBLIC_DIR, 'data');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -69,197 +70,26 @@ function sample(name) {
   return json;
 }
 
-// Day boundaries for "today" and demo-data filtering follow this time zone.
-// ESPN's scoreboard groups match days in US Eastern, so we match it.
-const DAY_TZ = process.env.DAY_TZ || 'America/New_York';
-
-// YYYYMMDD for a timestamp as seen in DAY_TZ.
-function ymdInZone(d) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: DAY_TZ,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  })
-    .format(d)
-    .replace(/-/g, '');
-}
-
-// Pure calendar arithmetic on a YYYYMMDD label.
-function addDaysYmd(s, n) {
-  const t = parseYmd(s);
-  t.setUTCDate(t.getUTCDate() + n);
-  return `${t.getUTCFullYear()}${String(t.getUTCMonth() + 1).padStart(2, '0')}${String(t.getUTCDate()).padStart(2, '0')}`;
-}
-
-function sampleScoreboardWindow(startYmd, days) {
-  const board = sample('scoreboard');
-  const endYmd = addDaysYmd(startYmd, days); // exclusive
-  board.matches = (board.matches || []).filter((m) => {
-    const d = ymdInZone(new Date(m.date));
-    return d >= startYmd && d < endYmd;
-  });
-  board.date = startYmd;
-  return board;
-}
-
-function parseYmd(s) {
-  return new Date(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)));
-}
-
-// ---------------------------------------------------------------------------
-// Normalizers — compact shapes shared by live data and the bundled samples.
-// ---------------------------------------------------------------------------
-function normalizeScoreboard(espn) {
-  const events = espn.events || [];
-  const matches = events.map((ev) => {
-    const comp = (ev.competitions && ev.competitions[0]) || {};
-    const competitors = comp.competitors || [];
-    const home = competitors.find((c) => c.homeAway === 'home') || competitors[0] || {};
-    const away = competitors.find((c) => c.homeAway === 'away') || competitors[1] || {};
-    const odds = (comp.odds && comp.odds[0]) || null;
-    const broadcasts = (comp.broadcasts || []).flatMap((b) => b.names || []);
-    const note = (comp.notes && comp.notes[0] && comp.notes[0].headline) || '';
-    const side = (c) => ({
-      name: (c.team && (c.team.displayName || c.team.name)) || 'TBD',
-      abbrev: (c.team && c.team.abbreviation) || '',
-      logo: (c.team && c.team.logo) || '',
-      score: c.score != null ? Number(c.score) : null,
-      winner: !!c.winner,
-    });
-    return {
-      id: ev.id,
-      date: ev.date,
-      stage: note,
-      status: {
-        state: (ev.status && ev.status.type && ev.status.type.state) || 'pre', // pre | in | post
-        detail: (ev.status && ev.status.type && ev.status.type.shortDetail) || '',
-        clock: (ev.status && ev.status.displayClock) || '',
-      },
-      venue: (comp.venue && comp.venue.fullName) || '',
-      city: (comp.venue && comp.venue.address && comp.venue.address.city) || '',
-      broadcasts,
-      home: side(home),
-      away: side(away),
-      odds: odds
-        ? {
-            details: odds.details || '',
-            overUnder: odds.overUnder != null ? odds.overUnder : null,
-            homeML: odds.homeTeamOdds ? odds.homeTeamOdds.moneyLine : null,
-            awayML: odds.awayTeamOdds ? odds.awayTeamOdds.moneyLine : null,
-            drawML: odds.drawOdds ? odds.drawOdds.moneyLine : null,
-            provider: (odds.provider && odds.provider.name) || '',
-          }
-        : null,
-    };
-  });
-  return { source: 'espn', date: espn.day ? espn.day.date : null, matches };
-}
-
-function normalizeStandings(espn) {
-  const groups = (espn.children || []).map((child) => {
-    const entries = (child.standings && child.standings.entries) || [];
-    const rows = entries.map((entry) => {
-      const stats = {};
-      for (const s of entry.stats || []) stats[s.name] = s.value;
-      return {
-        team: (entry.team && (entry.team.displayName || entry.team.name)) || '',
-        abbrev: (entry.team && entry.team.abbreviation) || '',
-        logo:
-          (entry.team && entry.team.logos && entry.team.logos[0] && entry.team.logos[0].href) || '',
-        played: stats.gamesPlayed ?? 0,
-        wins: stats.wins ?? 0,
-        draws: stats.ties ?? 0,
-        losses: stats.losses ?? 0,
-        gf: stats.pointsFor ?? 0,
-        ga: stats.pointsAgainst ?? 0,
-        gd: stats.pointDifferential ?? (stats.pointsFor ?? 0) - (stats.pointsAgainst ?? 0),
-        points: stats.points ?? 0,
-        rank: stats.rank ?? null,
-      };
-    });
-    rows.sort((a, b) => (a.rank ?? 99) - (b.rank ?? 99) || b.points - a.points || b.gd - a.gd);
-    return { name: child.name || child.abbreviation || 'Group', rows };
-  });
-  return { source: 'espn', groups };
-}
-
-function normalizeOddsApi(events) {
-  const matches = (events || []).map((ev) => {
-    let homeML = null;
-    let awayML = null;
-    let drawML = null;
-    let overUnder = null;
-    let bookmaker = '';
-    for (const bk of ev.bookmakers || []) {
-      for (const market of bk.markets || []) {
-        if (market.key === 'h2h' && homeML == null) {
-          bookmaker = bk.title;
-          for (const out of market.outcomes || []) {
-            if (out.name === ev.home_team) homeML = out.price;
-            else if (out.name === ev.away_team) awayML = out.price;
-            else drawML = out.price;
-          }
-        }
-        if (market.key === 'totals' && overUnder == null) {
-          const out = (market.outcomes || [])[0];
-          if (out) overUnder = out.point;
-        }
-      }
-      if (homeML != null && overUnder != null) break;
-    }
-    return {
-      id: ev.id,
-      commence: ev.commence_time,
-      home: ev.home_team,
-      away: ev.away_team,
-      homeML,
-      drawML,
-      awayML,
-      overUnder,
-      bookmaker,
-    };
-  });
-  return { source: 'odds-api', matches };
-}
-
-function oddsFromScoreboard(board) {
-  const matches = (board.matches || [])
-    .filter((m) => m.odds)
-    .map((m) => ({
-      id: m.id,
-      commence: m.date,
-      home: m.home.name,
-      away: m.away.name,
-      homeML: m.odds.homeML,
-      drawML: m.odds.drawML,
-      awayML: m.odds.awayML,
-      overUnder: m.odds.overUnder,
-      bookmaker: m.odds.provider || 'ESPN BET',
-    }));
-  return { source: board.source === 'sample' ? 'sample' : 'espn', matches };
-}
-
 // ---------------------------------------------------------------------------
 // API handlers
 // ---------------------------------------------------------------------------
 async function getScoreboard(date, days, demo) {
-  const start = date || ymdInZone(new Date());
+  const start = date || WCData.ymdInZone(new Date(), DAY_TZ);
   const span = Math.min(Math.max(days || 1, 1), 14);
-  if (demo) return sampleScoreboardWindow(start, span);
+  if (demo) return WCData.filterScoreboardWindow(sample('scoreboard'), start, span, DAY_TZ);
   try {
     // ESPN accepts a single day (dates=YYYYMMDD) or a range (dates=A-B, inclusive).
-    const dates = span > 1 ? `${start}-${addDaysYmd(start, span - 1)}` : start;
+    const dates = span > 1 ? `${start}-${WCData.addDaysYmd(start, span - 1)}` : start;
     const espn = await cached(`sb:${dates}`, 30000, () =>
       fetchJson(`${ESPN_BASE}/scoreboard?dates=${dates}`)
     );
-    const board = normalizeScoreboard(espn);
+    const board = WCData.normalizeScoreboard(espn);
     board.date = start;
     board.matches.sort((a, b) => new Date(a.date) - new Date(b.date));
     return board;
   } catch (err) {
     console.error('[scoreboard]', err.message);
-    return sampleScoreboardWindow(start, span);
+    return WCData.filterScoreboardWindow(sample('scoreboard'), start, span, DAY_TZ);
   }
 }
 
@@ -267,7 +97,7 @@ async function getStandings(demo) {
   if (demo) return sample('standings');
   try {
     const espn = await cached('standings', 300000, () => fetchJson(ESPN_STANDINGS));
-    return normalizeStandings(espn);
+    return WCData.normalizeStandings(espn);
   } catch (err) {
     console.error('[standings]', err.message);
     return sample('standings');
@@ -276,20 +106,10 @@ async function getStandings(demo) {
 
 async function getOdds(demo) {
   if (demo) return sample('odds');
-  if (ODDS_API_KEY) {
-    try {
-      const url =
-        `${ODDS_API_BASE}/sports/${ODDS_SPORT_KEY}/odds` +
-        `?apiKey=${ODDS_API_KEY}&regions=us&markets=h2h,totals&oddsFormat=american`;
-      const events = await cached('odds', 120000, () => fetchJson(url));
-      return normalizeOddsApi(events);
-    } catch (err) {
-      console.error('[odds-api]', err.message);
-    }
-  }
-  // Fall back to the odds ESPN embeds in its scoreboard.
-  const board = await getScoreboard(null, 1, false);
-  return oddsFromScoreboard(board);
+  // ESPN embeds ESPN BET lines in its scoreboard; a week-wide window gives
+  // lines for upcoming fixtures too.
+  const board = await getScoreboard(null, 8, false);
+  return WCData.oddsFromScoreboard(board);
 }
 
 // ---------------------------------------------------------------------------
@@ -334,14 +154,14 @@ const server = http.createServer(async (req, res) => {
       return sendJson(res, 200, await getOdds(demo));
     }
     if (url.pathname === '/api/health') {
-      return sendJson(res, 200, { ok: true, oddsApiConfigured: !!ODDS_API_KEY });
+      return sendJson(res, 200, { ok: true });
     }
   } catch (err) {
     console.error('[server]', err);
     return sendJson(res, 500, { error: 'internal error' });
   }
 
-  // Static files — resolve inside public/ only.
+  // Static files — resolve inside docs/ only.
   const rel = url.pathname === '/' ? 'index.html' : url.pathname.slice(1);
   const filePath = path.join(PUBLIC_DIR, path.normalize(rel));
   if (!filePath.startsWith(PUBLIC_DIR)) {
@@ -353,9 +173,4 @@ const server = http.createServer(async (req, res) => {
 
 server.listen(PORT, () => {
   console.log(`World Cup Watch Dash running at http://localhost:${PORT}`);
-  console.log(
-    ODDS_API_KEY
-      ? 'Betting odds: The Odds API (key configured)'
-      : 'Betting odds: ESPN scoreboard lines (set ODDS_API_KEY for richer markets)'
-  );
 });
