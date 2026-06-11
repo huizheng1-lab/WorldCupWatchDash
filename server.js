@@ -69,17 +69,34 @@ function sample(name) {
   return json;
 }
 
-// YYYYMMDD (UTC) for a Date, optionally shifted by n days.
-function ymd(d, plusDays = 0) {
-  const t = new Date(d.getTime() + plusDays * 86400000);
+// Day boundaries for "today" and demo-data filtering follow this time zone.
+// ESPN's scoreboard groups match days in US Eastern, so we match it.
+const DAY_TZ = process.env.DAY_TZ || 'America/New_York';
+
+// YYYYMMDD for a timestamp as seen in DAY_TZ.
+function ymdInZone(d) {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: DAY_TZ,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  })
+    .format(d)
+    .replace(/-/g, '');
+}
+
+// Pure calendar arithmetic on a YYYYMMDD label.
+function addDaysYmd(s, n) {
+  const t = parseYmd(s);
+  t.setUTCDate(t.getUTCDate() + n);
   return `${t.getUTCFullYear()}${String(t.getUTCMonth() + 1).padStart(2, '0')}${String(t.getUTCDate()).padStart(2, '0')}`;
 }
 
 function sampleScoreboardWindow(startYmd, days) {
   const board = sample('scoreboard');
-  const endYmd = ymd(parseYmd(startYmd), days); // exclusive
+  const endYmd = addDaysYmd(startYmd, days); // exclusive
   board.matches = (board.matches || []).filter((m) => {
-    const d = ymd(new Date(m.date));
+    const d = ymdInZone(new Date(m.date));
     return d >= startYmd && d < endYmd;
   });
   board.date = startYmd;
@@ -227,12 +244,12 @@ function oddsFromScoreboard(board) {
 // API handlers
 // ---------------------------------------------------------------------------
 async function getScoreboard(date, days, demo) {
-  const start = date || ymd(new Date());
+  const start = date || ymdInZone(new Date());
   const span = Math.min(Math.max(days || 1, 1), 14);
   if (demo) return sampleScoreboardWindow(start, span);
   try {
     // ESPN accepts a single day (dates=YYYYMMDD) or a range (dates=A-B, inclusive).
-    const dates = span > 1 ? `${start}-${ymd(parseYmd(start), span - 1)}` : start;
+    const dates = span > 1 ? `${start}-${addDaysYmd(start, span - 1)}` : start;
     const espn = await cached(`sb:${dates}`, 30000, () =>
       fetchJson(`${ESPN_BASE}/scoreboard?dates=${dates}`)
     );

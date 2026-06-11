@@ -62,6 +62,7 @@ You can override the sport key with `ODDS_SPORT_KEY` (default
 | `PORT` | `3000` | HTTP port |
 | `ODDS_API_KEY` | *(unset)* | The Odds API key for richer betting markets |
 | `ODDS_SPORT_KEY` | `soccer_fifa_world_cup` | The Odds API sport identifier |
+| `DAY_TZ` | `America/New_York` | Time zone for match-day boundaries (matches ESPN's Eastern-based schedule days) |
 
 ## Offline / demo mode
 
