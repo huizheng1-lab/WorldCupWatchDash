@@ -19,12 +19,25 @@
     <div class="topbar-right">
       <span id="live-indicator" class="live-indicator hidden"><span class="dot"></span><span id="live-count"></span> LIVE</span>
       <span id="updated-at" class="updated-at"></span>
+      <button id="btn-theme" class="btn-chip" title="Theme: auto switches light by day, dark by night">&#127763; Auto</button>
+      <button id="btn-favs" class="btn-chip" title="Pick favorite teams — you'll be alerted when they play in the next 3 days">&#9733; My Teams</button>
     </div>
   </header>
+
+  <div id="fav-panel" class="fav-panel hidden">
+    <div class="fav-panel-head">
+      <strong>Favorite teams</strong>
+      <button id="fav-close" class="btn-chip">&#10005;</button>
+    </div>
+    <p class="fav-note">You'll get an alarm when a favorite team — or any match you star (&#9733;) on its card — kicks off within the next 3 days.</p>
+    <div id="fav-list" class="fav-list"></div>
+  </div>
 
   <div id="demo-banner" class="demo-banner hidden">
     Showing demo data &mdash; live feeds are unreachable from this network. Scores, standings and odds refresh automatically once the app can reach the internet.
   </div>
+
+  <div id="alarm-banner" class="alarm-banner hidden"></div>
 
   <main>
     <!-- Featured match / watch panel -->
@@ -44,13 +57,18 @@
       </div>
     </section>
 
-    <!-- Date navigation + tabs -->
+    <!-- Date navigation + range + tabs -->
     <nav class="controls">
       <div class="date-nav">
         <button id="date-prev" class="btn-nav" aria-label="Previous day">&#8249;</button>
         <button id="date-today" class="btn-nav btn-today">Today</button>
         <button id="date-next" class="btn-nav" aria-label="Next day">&#8250;</button>
         <span id="date-label" class="date-label"></span>
+      </div>
+      <div class="range-toggle" role="group" aria-label="Days ahead">
+        <button class="range-btn active" data-days="1">Today</button>
+        <button class="range-btn" data-days="2">+1 day</button>
+        <button class="range-btn" data-days="8">+7 days</button>
       </div>
       <div class="tabs" role="tablist">
         <button class="tab active" data-tab="matches" role="tab">Matches</button>

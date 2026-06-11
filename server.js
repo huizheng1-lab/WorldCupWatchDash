@@ -4,7 +4,8 @@
  * Serves the static dashboard and proxies/normalizes upstream data so the
  * browser never deals with CORS or API keys:
  *
- *   GET /api/scoreboard?date=YYYYMMDD   live scores (ESPN public API)
+ *   GET /api/scoreboard?date=YYYYMMDD&days=N   live scores (ESPN public API);
+ *                                       days>1 returns a date-range window
  *   GET /api/standings                  group standings (ESPN public API)
  *   GET /api/odds                       betting odds (The Odds API if
  *                                       ODDS_API_KEY is set, else odds
@@ -66,6 +67,27 @@ function sample(name) {
   const json = JSON.parse(raw);
   json.source = 'sample';
   return json;
+}
+
+// YYYYMMDD (UTC) for a Date, optionally shifted by n days.
+function ymd(d, plusDays = 0) {
+  const t = new Date(d.getTime() + plusDays * 86400000);
+  return `${t.getUTCFullYear()}${String(t.getUTCMonth() + 1).padStart(2, '0')}${String(t.getUTCDate()).padStart(2, '0')}`;
+}
+
+function sampleScoreboardWindow(startYmd, days) {
+  const board = sample('scoreboard');
+  const endYmd = ymd(parseYmd(startYmd), days); // exclusive
+  board.matches = (board.matches || []).filter((m) => {
+    const d = ymd(new Date(m.date));
+    return d >= startYmd && d < endYmd;
+  });
+  board.date = startYmd;
+  return board;
+}
+
+function parseYmd(s) {
+  return new Date(Date.UTC(+s.slice(0, 4), +s.slice(4, 6) - 1, +s.slice(6, 8)));
 }
 
 // ---------------------------------------------------------------------------
@@ -204,17 +226,23 @@ function oddsFromScoreboard(board) {
 // ---------------------------------------------------------------------------
 // API handlers
 // ---------------------------------------------------------------------------
-async function getScoreboard(date, demo) {
-  if (demo) return sample('scoreboard');
+async function getScoreboard(date, days, demo) {
+  const start = date || ymd(new Date());
+  const span = Math.min(Math.max(days || 1, 1), 14);
+  if (demo) return sampleScoreboardWindow(start, span);
   try {
-    const qs = date ? `?dates=${encodeURIComponent(date)}` : '';
-    const espn = await cached(`sb:${date || 'today'}`, 30000, () =>
-      fetchJson(`${ESPN_BASE}/scoreboard${qs}`)
+    // ESPN accepts a single day (dates=YYYYMMDD) or a range (dates=A-B, inclusive).
+    const dates = span > 1 ? `${start}-${ymd(parseYmd(start), span - 1)}` : start;
+    const espn = await cached(`sb:${dates}`, 30000, () =>
+      fetchJson(`${ESPN_BASE}/scoreboard?dates=${dates}`)
     );
-    return normalizeScoreboard(espn);
+    const board = normalizeScoreboard(espn);
+    board.date = start;
+    board.matches.sort((a, b) => new Date(a.date) - new Date(b.date));
+    return board;
   } catch (err) {
     console.error('[scoreboard]', err.message);
-    return sample('scoreboard');
+    return sampleScoreboardWindow(start, span);
   }
 }
 
@@ -243,7 +271,7 @@ async function getOdds(demo) {
     }
   }
   // Fall back to the odds ESPN embeds in its scoreboard.
-  const board = await getScoreboard(null, false);
+  const board = await getScoreboard(null, 1, false);
   return oddsFromScoreboard(board);
 }
 
@@ -279,7 +307,8 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url.pathname === '/api/scoreboard') {
       const date = (url.searchParams.get('date') || '').replace(/[^0-9]/g, '') || null;
-      return sendJson(res, 200, await getScoreboard(date, demo));
+      const days = parseInt(url.searchParams.get('days') || '1', 10) || 1;
+      return sendJson(res, 200, await getScoreboard(date, days, demo));
     }
     if (url.pathname === '/api/standings') {
       return sendJson(res, 200, await getStandings(demo));

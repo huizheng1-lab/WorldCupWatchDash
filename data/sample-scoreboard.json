@@ -77,6 +77,101 @@
         "drawML": 250,
         "provider": "Demo Book"
       }
+    },
+    {
+      "id": "demo-5",
+      "date": "2026-06-13T16:00:00Z",
+      "stage": "Group C - Matchday 1",
+      "status": { "state": "pre", "detail": "12:00 PM ET", "clock": "" },
+      "venue": "Gillette Stadium",
+      "city": "Foxborough",
+      "broadcasts": ["FOX One"],
+      "home": { "name": "Croatia", "abbrev": "CRO", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Ghana", "abbrev": "GHA", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "CRO -160",
+        "overUnder": 2.5,
+        "homeML": -160,
+        "awayML": 420,
+        "drawML": 280,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-6",
+      "date": "2026-06-13T22:00:00Z",
+      "stage": "Group B - Matchday 1",
+      "status": { "state": "pre", "detail": "6:00 PM ET", "clock": "" },
+      "venue": "Lumen Field",
+      "city": "Seattle",
+      "broadcasts": ["FS1", "FOX One"],
+      "home": { "name": "Norway", "abbrev": "NOR", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Uzbekistan", "abbrev": "UZB", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "NOR -190",
+        "overUnder": 2.5,
+        "homeML": -190,
+        "awayML": 500,
+        "drawML": 300,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-7",
+      "date": "2026-06-14T20:00:00Z",
+      "stage": "Group A - Matchday 1",
+      "status": { "state": "pre", "detail": "4:00 PM ET", "clock": "" },
+      "venue": "Mercedes-Benz Stadium",
+      "city": "Atlanta",
+      "broadcasts": ["FOX", "FOX One"],
+      "home": { "name": "Switzerland", "abbrev": "SUI", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Ivory Coast", "abbrev": "CIV", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "SUI -135",
+        "overUnder": 2.0,
+        "homeML": -135,
+        "awayML": 360,
+        "drawML": 240,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-8",
+      "date": "2026-06-16T23:00:00Z",
+      "stage": "Group D - Matchday 1",
+      "status": { "state": "pre", "detail": "7:00 PM ET", "clock": "" },
+      "venue": "Levi's Stadium",
+      "city": "Santa Clara",
+      "broadcasts": ["FOX One"],
+      "home": { "name": "Ecuador", "abbrev": "ECU", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Scotland", "abbrev": "SCO", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "ECU -110",
+        "overUnder": 2.0,
+        "homeML": -110,
+        "awayML": 300,
+        "drawML": 220,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-9",
+      "date": "2026-06-18T19:00:00Z",
+      "stage": "Group A - Matchday 2",
+      "status": { "state": "pre", "detail": "3:00 PM ET", "clock": "" },
+      "venue": "Estadio Akron",
+      "city": "Guadalajara",
+      "broadcasts": ["FOX", "FOX One"],
+      "home": { "name": "Mexico", "abbrev": "MEX", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Switzerland", "abbrev": "SUI", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "MEX +105",
+        "overUnder": 2.0,
+        "homeML": 105,
+        "awayML": 260,
+        "drawML": 215,
+        "provider": "Demo Book"
+      }
     }
   ]
 }

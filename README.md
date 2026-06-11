@@ -12,6 +12,14 @@ your **FOX One** subscription, and track **live scores**, **group standings**, a
   subscription and keep the dashboard as your second screen.
 - **Live scores** — match cards with live clock, score, venue and stage, refreshed
   every 30 seconds. Browse any day of the tournament with the date navigation.
+- **Upcoming games** — a range toggle (Today / +1 day / +7 days) shows scheduled
+  fixtures ahead of the current date, grouped by day.
+- **Kickoff alarm** — pick favorite teams (★ My Teams) or star individual
+  matches; when one has a game within the next 3 days you get an in-app alarm
+  banner, a chime, and a browser notification (one per match).
+- **Auto day/night theme** — light theme from 7am to 7pm, dark at night,
+  re-checked every minute. Override anytime with the theme toggle
+  (Auto → Light → Dark).
 - **Standings** — all group tables (P/W/D/L/GD/Pts) with qualification positions
   highlighted, refreshed every 5 minutes.
 - **Betting odds** — moneyline (home/draw/away) and over/under per match,
@@ -66,6 +74,7 @@ routes), the server serves bundled sample data and the UI shows a
 ```
 server.js          zero-dependency Node server
   /api/scoreboard  → ESPN scoreboard, normalized + 30s cache
+                     (?date=YYYYMMDD&days=N for multi-day windows)
   /api/standings   → ESPN standings, normalized + 5min cache
   /api/odds        → The Odds API (if key) or ESPN lines + 2min cache
   /*               → static files from public/
