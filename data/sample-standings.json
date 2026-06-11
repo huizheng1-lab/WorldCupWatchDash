@@ -1,0 +1,41 @@
+{
+  "source": "sample",
+  "groups": [
+    {
+      "name": "Group A",
+      "rows": [
+        { "team": "Mexico", "abbrev": "MEX", "logo": "", "played": 1, "wins": 1, "draws": 0, "losses": 0, "gf": 2, "ga": 1, "gd": 1, "points": 3, "rank": 1 },
+        { "team": "Switzerland", "abbrev": "SUI", "logo": "", "played": 1, "wins": 0, "draws": 1, "losses": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1, "rank": 2 },
+        { "team": "Ivory Coast", "abbrev": "CIV", "logo": "", "played": 1, "wins": 0, "draws": 1, "losses": 0, "gf": 1, "ga": 1, "gd": 0, "points": 1, "rank": 3 },
+        { "team": "South Africa", "abbrev": "RSA", "logo": "", "played": 1, "wins": 0, "draws": 0, "losses": 1, "gf": 1, "ga": 2, "gd": -1, "points": 0, "rank": 4 }
+      ]
+    },
+    {
+      "name": "Group B",
+      "rows": [
+        { "team": "Morocco", "abbrev": "MAR", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 1 },
+        { "team": "Canada", "abbrev": "CAN", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 2 },
+        { "team": "Norway", "abbrev": "NOR", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 3 },
+        { "team": "Uzbekistan", "abbrev": "UZB", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 4 }
+      ]
+    },
+    {
+      "name": "Group C",
+      "rows": [
+        { "team": "Brazil", "abbrev": "BRA", "logo": "", "played": 1, "wins": 1, "draws": 0, "losses": 0, "gf": 3, "ga": 0, "gd": 3, "points": 3, "rank": 1 },
+        { "team": "Croatia", "abbrev": "CRO", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 2 },
+        { "team": "Ghana", "abbrev": "GHA", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 3 },
+        { "team": "New Zealand", "abbrev": "NZL", "logo": "", "played": 1, "wins": 0, "draws": 0, "losses": 1, "gf": 0, "ga": 3, "gd": -3, "points": 0, "rank": 4 }
+      ]
+    },
+    {
+      "name": "Group D",
+      "rows": [
+        { "team": "United States", "abbrev": "USA", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 1 },
+        { "team": "Japan", "abbrev": "JPN", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 2 },
+        { "team": "Ecuador", "abbrev": "ECU", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 3 },
+        { "team": "Scotland", "abbrev": "SCO", "logo": "", "played": 0, "wins": 0, "draws": 0, "losses": 0, "gf": 0, "ga": 0, "gd": 0, "points": 0, "rank": 4 }
+      ]
+    }
+  ]
+}

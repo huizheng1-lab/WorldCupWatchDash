@@ -1,0 +1,38 @@
+{
+  "source": "sample",
+  "matches": [
+    {
+      "id": "demo-1",
+      "commence": "2026-06-11T19:00:00Z",
+      "home": "Mexico",
+      "away": "South Africa",
+      "homeML": -140,
+      "drawML": 260,
+      "awayML": 380,
+      "overUnder": 2.5,
+      "bookmaker": "Demo Book"
+    },
+    {
+      "id": "demo-2",
+      "commence": "2026-06-11T23:00:00Z",
+      "home": "Canada",
+      "away": "Morocco",
+      "homeML": 240,
+      "drawML": 230,
+      "awayML": -115,
+      "overUnder": 2.0,
+      "bookmaker": "Demo Book"
+    },
+    {
+      "id": "demo-4",
+      "commence": "2026-06-12T01:00:00Z",
+      "home": "United States",
+      "away": "Japan",
+      "homeML": -125,
+      "drawML": 250,
+      "awayML": 330,
+      "overUnder": 2.5,
+      "bookmaker": "Demo Book"
+    }
+  ]
+}

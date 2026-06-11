@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Cup Watch Dash</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,&lt;svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'&gt;&lt;text y='80' font-size='80'&gt;&#9917;&lt;/text&gt;&lt;/svg&gt;" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-ball">&#9917;</span>
+      <div>
+        <h1>World Cup Watch Dash</h1>
+        <p class="brand-sub">FIFA World Cup 2026 &middot; Live on FOX One</p>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span id="live-indicator" class="live-indicator hidden"><span class="dot"></span><span id="live-count"></span> LIVE</span>
+      <span id="updated-at" class="updated-at"></span>
+    </div>
+  </header>
+
+  <div id="demo-banner" class="demo-banner hidden">
+    Showing demo data &mdash; live feeds are unreachable from this network. Scores, standings and odds refresh automatically once the app can reach the internet.
+  </div>
+
+  <main>
+    <!-- Featured match / watch panel -->
+    <section id="watch-panel" class="watch-panel">
+      <div class="watch-info">
+        <p class="watch-label" id="watch-label">FEATURED MATCH</p>
+        <div id="watch-match" class="watch-match">
+          <p class="watch-empty">Select a match below to feature it here.</p>
+        </div>
+      </div>
+      <div class="watch-actions">
+        <button id="btn-foxone" class="btn-fox" title="Opens the FOX One player in a popup. Sign in with your FOX One subscription.">
+          &#9654;&#65039; Watch on FOX One
+        </button>
+        <a id="link-foxsports" class="btn-secondary" href="https://www.foxsports.com/live" target="_blank" rel="noopener">FOX Sports live hub</a>
+        <p class="watch-hint">Streams play in the FOX One player (DRM-protected &mdash; sign in with your subscription). Keep this dashboard up as your second screen.</p>
+      </div>
+    </section>
+
+    <!-- Date navigation + tabs -->
+    <nav class="controls">
+      <div class="date-nav">
+        <button id="date-prev" class="btn-nav" aria-label="Previous day">&#8249;</button>
+        <button id="date-today" class="btn-nav btn-today">Today</button>
+        <button id="date-next" class="btn-nav" aria-label="Next day">&#8250;</button>
+        <span id="date-label" class="date-label"></span>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="tab active" data-tab="matches" role="tab">Matches</button>
+        <button class="tab" data-tab="standings" role="tab">Standings</button>
+        <button class="tab" data-tab="odds" role="tab">Odds</button>
+      </div>
+    </nav>
+
+    <section id="panel-matches" class="panel"></section>
+    <section id="panel-standings" class="panel hidden"></section>
+    <section id="panel-odds" class="panel hidden"></section>
+  </main>
+
+  <footer class="footer">
+    <p>Scores &amp; standings via ESPN public feeds &middot; Odds via The Odds API or ESPN BET lines &middot; Streaming requires a FOX One subscription.</p>
+    <p class="disclaimer">Odds are informational only &mdash; this dashboard does not place bets. Please gamble responsibly.</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

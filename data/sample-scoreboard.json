@@ -1,0 +1,82 @@
+{
+  "source": "sample",
+  "date": "2026-06-11",
+  "matches": [
+    {
+      "id": "demo-1",
+      "date": "2026-06-11T19:00:00Z",
+      "stage": "Group A - Matchday 1",
+      "status": { "state": "in", "detail": "2nd Half", "clock": "67'" },
+      "venue": "Estadio Azteca",
+      "city": "Mexico City",
+      "broadcasts": ["FOX", "FOX One"],
+      "home": { "name": "Mexico", "abbrev": "MEX", "logo": "", "score": 2, "winner": false },
+      "away": { "name": "South Africa", "abbrev": "RSA", "logo": "", "score": 1, "winner": false },
+      "odds": {
+        "details": "MEX -140",
+        "overUnder": 2.5,
+        "homeML": -140,
+        "awayML": 380,
+        "drawML": 260,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-2",
+      "date": "2026-06-11T23:00:00Z",
+      "stage": "Group B - Matchday 1",
+      "status": { "state": "pre", "detail": "7:00 PM ET", "clock": "" },
+      "venue": "SoFi Stadium",
+      "city": "Inglewood",
+      "broadcasts": ["FOX One"],
+      "home": { "name": "Canada", "abbrev": "CAN", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Morocco", "abbrev": "MAR", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "MAR -115",
+        "overUnder": 2.0,
+        "homeML": 240,
+        "awayML": -115,
+        "drawML": 230,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-3",
+      "date": "2026-06-11T16:00:00Z",
+      "stage": "Group C - Matchday 1",
+      "status": { "state": "post", "detail": "FT", "clock": "" },
+      "venue": "MetLife Stadium",
+      "city": "East Rutherford",
+      "broadcasts": ["FS1", "FOX One"],
+      "home": { "name": "Brazil", "abbrev": "BRA", "logo": "", "score": 3, "winner": true },
+      "away": { "name": "New Zealand", "abbrev": "NZL", "logo": "", "score": 0, "winner": false },
+      "odds": {
+        "details": "BRA -450",
+        "overUnder": 3.0,
+        "homeML": -450,
+        "awayML": 1100,
+        "drawML": 550,
+        "provider": "Demo Book"
+      }
+    },
+    {
+      "id": "demo-4",
+      "date": "2026-06-12T01:00:00Z",
+      "stage": "Group D - Matchday 1",
+      "status": { "state": "pre", "detail": "9:00 PM ET", "clock": "" },
+      "venue": "AT&T Stadium",
+      "city": "Arlington",
+      "broadcasts": ["FOX", "FOX One"],
+      "home": { "name": "United States", "abbrev": "USA", "logo": "", "score": null, "winner": false },
+      "away": { "name": "Japan", "abbrev": "JPN", "logo": "", "score": null, "winner": false },
+      "odds": {
+        "details": "USA -125",
+        "overUnder": 2.5,
+        "homeML": -125,
+        "awayML": 330,
+        "drawML": 250,
+        "provider": "Demo Book"
+      }
+    }
+  ]
+}
